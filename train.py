@@ -7,7 +7,7 @@ from tensorflow.keras import layers
 from matplotlib import pyplot as plt
 import pickle
 
-import network
+# import network
 import utils
 
 
@@ -25,7 +25,9 @@ for gpu in gpus:
 # 1. Download the file "http://3dvision.princeton.edu/projects/2014/3DShapeNets/ModelNet10.zip"
 # 2. Extract it and note the path
 # 3. Set the path to the extracted folder
-DATA_DIR = "ModelNet10"     # <- Set this path correctly
+fdir = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(fdir, "dataset")
+# DATA_DIR = "ModelNet10"     # <- Set this path correctly
 
 # 4. Familiarize yourself with the dataset by checking the folders and visualizing the models.
 # Use the functions trimesh.load to load a mesh and mesh.show() to visualize it

@@ -1,6 +1,7 @@
-# test folder and dataset folder
+# test, dataset and .vscode folder
 **/test/
 **/dataset/
+**/.vscode/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

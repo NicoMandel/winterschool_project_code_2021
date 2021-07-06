@@ -30,23 +30,24 @@ def create_point_cloud_dataset(data_dir, num_points_per_cloud=1024):
     folders = glob.glob(os.path.join(data_dir, "[!README]*"))
 
     for class_id, folder in enumerate(folders):
-        print("processing class: {}".format(os.path.basename(folder)))
+        class_name = os.path.basename(folder)
+        print("processing class: {}".format(class_name))
 
         # TODO: Fill this part, get the name of the folder (class) and save it
-        class_ids
+        class_ids[folder] = class_id
 
         # get the files in the train folder
         train_files = glob.glob(os.path.join(folder, "train/*"))
         for f in train_files:
             # TODO: Fill this part
-            train_pc
-            train_labels
+            train_pc.append(getPointsfromPath(f, num_points_per_cloud))
+            train_labels.append(class_name)
         # get the files in the test folder
         test_files = glob.glob(os.path.join(folder, "test/*"))
         for f in test_files:
             # TODO: FIll this part
-            test_pc
-            test_labels
+            test_pc.append(getPointsfromPath(f, num_points_per_cloud))
+            test_labels.append(class_name)
 
     return (np.array(train_pc), np.array(test_pc),
             np.array(train_labels), np.array(test_labels), class_ids)
@@ -80,4 +81,11 @@ def add_noise_and_shuffle(point_cloud, label):
     # shuffle points
     point_cloud = tf.random.shuffle(point_cloud)
     return point_cloud, label
+
+
+def getPointsfromPath(fname, points_per_cloud):
+    cad_mesh = trimesh.load(fname)
+    points = trimesh.sample.sample_surface(cad_mesh, points_per_cloud)[0]
+    return points
+
 
