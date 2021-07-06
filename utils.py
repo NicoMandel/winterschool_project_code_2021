@@ -34,7 +34,7 @@ def create_point_cloud_dataset(data_dir, num_points_per_cloud=1024):
         print("processing class: {}".format(class_name))
 
         # TODO: Fill this part, get the name of the folder (class) and save it
-        class_ids[folder] = class_id
+        class_ids[class_name] = class_id
 
         # get the files in the train folder
         train_files = glob.glob(os.path.join(folder, "train/*"))

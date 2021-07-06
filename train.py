@@ -46,25 +46,30 @@ utils.visualize_cloud(points)
 # 1. Use the above function to repeat the process and sample points for the entire dataset.
 # Develop the skeleton code in the utils.py file.
 num_points_per_cloud = 1024     # <- you can modify this number as needed
-train_pc, test_pc, train_labels, test_labels, class_ids = utils.create_point_cloud_dataset(DATA_DIR,
-                                                                                           num_points_per_cloud)
-
-# 2. For the semantic segmentation dataset, modify the above function.
-# Tips: You can generate the point clouds of individual objects and then randomly combine multiple objects to one cloud.
-
-# once loaded save the numpy arrays to pickle files to use later
-pickle.dump(train_pc, open("trainpc.pkl", "wb"))
-pickle.dump(test_pc, open("testpc.pkl", "wb"))
-pickle.dump(train_labels, open("trainlabels.pkl", "wb"))
-pickle.dump(test_labels, open("testlabels.pkl", "wb"))
-pickle.dump(class_ids, open("class_ids.pkl", "wb"))
 
 # load the data from pickle files if already present
-# train_pc = pickle.load(open("trainpc.pkl", "rb"))
-# train_labels = pickle.load(open("trainlabels.pkl", "rb"))
-# test_pc = pickle.load(open("testpc.pkl", "rb"))
-# test_labels = pickle.load(open("testlabels.pkl", "rb"))
-# class_ids = pickle.load(open("class_ids.pkl", "rb"))
+try:
+    train_pc = pickle.load(open(os.path.join(DATA_DIR, "trainpc.pkl"), "rb"))
+    train_labels = pickle.load(open(os.path.join(DATA_DIR, "trainlabels.pkl"), "rb"))
+    test_pc = pickle.load(open(os.path.join(DATA_DIR, "testpc.pkl"), "rb"))
+    test_labels = pickle.load(open(os.path.join(DATA_DIR, "testlabels.pkl"), "rb"))
+    class_ids = pickle.load(open(os.path.join(DATA_DIR, "class_ids.pkl"), "rb"))
+    print("Pickled files already found in {}. Using these".format(DATA_DIR))
+except FileNotFoundError:
+    print("No pickled files found in {}. Creating new. This may take a while, sit back and relax".format(DATA_DIR))
+    train_pc, test_pc, train_labels, test_labels, class_ids = utils.create_point_cloud_dataset(DATA_DIR,
+                                                                                            num_points_per_cloud)
+
+    # 2. For the semantic segmentation dataset, modify the above function.
+    # Tips: You can generate the point clouds of individual objects and then randomly combine multiple objects to one cloud.
+
+    # once loaded save the numpy arrays to pickle files to use later
+    pickle.dump(train_pc, open(os.path.join(DATA_DIR, "trainpc.pkl"), "wb"))
+    pickle.dump(test_pc, open(os.path.join(DATA_DIR, "testpc.pkl"), "wb"))
+    pickle.dump(train_labels, open(os.path.join(DATA_DIR, "trainlabels.pkl"), "wb"))
+    pickle.dump(test_labels, open(os.path.join(DATA_DIR, "testlabels.pkl"), "wb"))
+    pickle.dump(class_ids, open(os.path.join(DATA_DIR, "class_ids.pkl"), "wb"))
+
 
 # Create tensorflow data loaders from the numpy arrays
 train_dataset = tf.data.Dataset.from_tensor_slices((train_pc, train_labels))
