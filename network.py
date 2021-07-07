@@ -1,4 +1,3 @@
-from re import S
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
@@ -114,7 +113,7 @@ def pointnet_classifier(inputs, num_classes):
     x = layers.BatchNormalization()(x)
     x = layers.Dense(2048, activation='relu')(x)
     x = layers.BatchNormalization()(x)
-    
+
     # apply 1D global max pooling
     x = layers.MaxPool1D()(x)
 
