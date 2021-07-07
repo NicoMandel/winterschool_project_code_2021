@@ -106,7 +106,7 @@ def pointnet_classifier(inputs, num_classes):
     x = layers.BatchNormalization()(x)
     
     # apply tnet on the feature vector
-    x = tnet(x, 64)
+    x = tnet(x, 128)
     # TODO: Check dimension mismatch?
 
     # extract features using some Convolutional Layers - with batch normalization and RELU activation
