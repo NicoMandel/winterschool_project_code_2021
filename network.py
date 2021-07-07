@@ -1,3 +1,4 @@
+from re import S
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
@@ -17,12 +18,28 @@ def tnet(inputs, num_features):
 
     # Initalise bias as the indentity matrix
     bias = keras.initializers.Constant(np.eye(num_features).flatten())
-
+    
+    dims = inputs.shape     # 1 x 1024 x 3
     # TODO: Build the tnet with the following layers
     # Some convolutional layers (1D) - with batch normalization, RELU activation
+    x = layers.Conv1D(64, 1, activation='relu', bias_initializer=bias)(inputs)
+    # 1 x 1024 x 64 
+    x = layers.BatchNormalization()(x)
+    x = layers.Conv1D(128, 1, activation='relu', bias_initializer=bias)(x)
+    # 1 x 1024 x 128
+    x = layers.BatchNormalization()(x)
+    x = layers.Conv1D(1024, 1, activation='relu', bias_initializer=bias)(x)
+    # 1 x 1024 x 1024 
+    x = layers.BatchNormalization()(x)
     # Global max pooling
+    x = layers.MaxPool1D(1)(x)
+    # 1 x 1024 x 1
     # Some dense fully connected layers - with batch normalization, RELU activation
-    x =
+    x = layers.Dense(512, activation='relu')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Dense(256, activation='relu')(x)
+    x = layers.BatchNormalization()(x)
+
 
     # final layer with custom regularizer on the output
     # TODO: this custom regularizer needs to be defined
@@ -56,13 +73,13 @@ class CustomRegularizer(keras.regularizers.Regularizer):
         # TODO: define the custom regularizer here
         x = tf.reshape(x, (-1, self.dim, self.dim))
         # compute the outer product and reshape it to batch size x num_features x num_features
-
+        outerpr = tf.tensordot(x, tf.transpose(x)).reshape((x.shape[0], x.shape[1], x.shape[1]))        # use .reshape(self.dim) ??
         # Compute (I-outerproduct)^2 element wise. use tf.square()
-
+        out = tf.square(np.eye(3) - outerpr)  
         # Apply weight
-
+        out = self.weight * out
         # Compute reduce sum using tf.reduce_sum()
-
+        output = tf.reduce_sum(out)
         return output
 
 
@@ -78,17 +95,37 @@ def pointnet_classifier(inputs, num_classes):
     """
     # TODO: build the network using the following layers
     # apply tnet to the input data
-    x =
-    # extract features using some Convolutional Layers - with batch normalization and RELU activation
+    x = tnet(inputs, 3)
 
+    # extract features using some Convolutional Layers - with batch normalization and RELU activation
+    x = layers.Dense(64, activation='relu')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Dense(128, activation='relu')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Dense(128, activation='relu')(x)
+    x = layers.BatchNormalization()(x)
+    
     # apply tnet on the feature vector
+    x = tnet(x, 64)
+    # TODO: Check dimension mismatch?
 
     # extract features using some Convolutional Layers - with batch normalization and RELU activation
-
+    x = layers.Dense(512, activation='relu')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Dense(2048, activation='relu')(x)
+    x = layers.BatchNormalization()(x)
+    
     # apply 1D global max pooling
+    x = layers.MaxPool1D()(x)
 
     # Add a few dense layers with dropout between the layers
-
+    x = layers.Dense(512, activation='relu')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Dropout(0.3)(x)      # TODO: should this be 0.7?
+    x = layers.Dense(256, activation='relu')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Dropout(0.3)(x)      # TODO: should this be 0.7?
+    
     # Finally predict classes using a dense layer with a softmax activation
     outputs = layers.Dense(num_classes, activation="softmax")(x)
     return outputs
