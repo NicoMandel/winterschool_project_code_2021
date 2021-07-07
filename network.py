@@ -21,13 +21,13 @@ def tnet(inputs, num_features):
     dims = inputs.shape     # 1 x 1024 x 3
     # TODO: Build the tnet with the following layers
     # Some convolutional layers (1D) - with batch normalization, RELU activation
-    x = layers.Conv1D(64, 1, activation='relu', bias_initializer=bias)(inputs)
+    x = layers.Conv1D(64, 1, activation='relu')(inputs)
     # 1 x 1024 x 64 
     x = layers.BatchNormalization()(x)
-    x = layers.Conv1D(128, 1, activation='relu', bias_initializer=bias)(x)
+    x = layers.Conv1D(128, 1, activation='relu')(x)
     # 1 x 1024 x 128
     x = layers.BatchNormalization()(x)
-    x = layers.Conv1D(1024, 1, activation='relu', bias_initializer=bias)(x)
+    x = layers.Conv1D(1024, 1, activation='relu')(x)
     # 1 x 1024 x 1024 
     x = layers.BatchNormalization()(x)
     # Global max pooling
@@ -97,11 +97,11 @@ def pointnet_classifier(inputs, num_classes):
     x = tnet(inputs, 3)
 
     # extract features using some Convolutional Layers - with batch normalization and RELU activation
-    x = layers.Dense(64, activation='relu')(x)
+    x = layers.Conv1D(64, 1, activation='relu')(x)
     x = layers.BatchNormalization()(x)
-    x = layers.Dense(128, activation='relu')(x)
+    x = layers.Conv1D(128, 1, activation='relu')(x)
     x = layers.BatchNormalization()(x)
-    x = layers.Dense(128, activation='relu')(x)
+    x = layers.Conv1D(128, 1, activation='relu')(x)
     x = layers.BatchNormalization()(x)
     
     # apply tnet on the feature vector
@@ -109,9 +109,9 @@ def pointnet_classifier(inputs, num_classes):
     # TODO: Check dimension mismatch?
 
     # extract features using some Convolutional Layers - with batch normalization and RELU activation
-    x = layers.Dense(512, activation='relu')(x)
+    x = layers.Conv1D(512, 1, activation='relu')(x)
     x = layers.BatchNormalization()(x)
-    x = layers.Dense(2048, activation='relu')(x)
+    x = layers.Conv1D(2048, 1, activation='relu')(x)
     x = layers.BatchNormalization()(x)
 
     # apply 1D global max pooling
@@ -142,11 +142,11 @@ def pointnet_segmenter(inputs, labels):
     """
     # TODO: build the network using the following layers
     # apply tnet to the input data
-    x =
+    # x =
     # extract features using some Convolutional Layers - with batch normalization and RELU activation
 
     # apply tnet on the feature vector
-    f =
+    # f =
     # extract features using some Convolutional Layers - with batch normalization and RELU activation
 
     # apply 1D global max pooling

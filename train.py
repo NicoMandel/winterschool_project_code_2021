@@ -7,7 +7,7 @@ from tensorflow.keras import layers
 from matplotlib import pyplot as plt
 import pickle
 
-# import network
+import network
 import utils
 
 
