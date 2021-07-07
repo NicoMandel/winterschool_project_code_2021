@@ -22,8 +22,10 @@ def tnet(inputs, num_features):
     # Some convolutional layers (1D) - with batch normalization, RELU activation
     # Global max pooling
     # Some dense fully connected layers - with batch normalization, RELU activation
-    x =
-
+    print(inputs.shape)
+    x = tf.keras.layers.Conv1D(32, 3, activation='relu',input_shape=(num_features, 3))
+    x = layers.MaxPool1D()
+    x = layers.BatchNormalization()(x)
     # final layer with custom regularizer on the output
     # TODO: this custom regularizer needs to be defined
     x = layers.Dense(
@@ -41,6 +43,7 @@ class CustomRegularizer(keras.regularizers.Regularizer):
     This class implements a regularizer that makes the output to be orthogonal.
     In other words, it adds a loss |I-AA^T|^2 on the output A. Equation 2 of the paper.
     """
+
     def __init__(self, dim, weight=0.001):
         """
         Initializes the class
@@ -78,7 +81,7 @@ def pointnet_classifier(inputs, num_classes):
     """
     # TODO: build the network using the following layers
     # apply tnet to the input data
-    x =
+    # x = tnet(inputs,1024)
     # extract features using some Convolutional Layers - with batch normalization and RELU activation
 
     # apply tnet on the feature vector
@@ -106,11 +109,11 @@ def pointnet_segmenter(inputs, labels):
     """
     # TODO: build the network using the following layers
     # apply tnet to the input data
-    x =
+    # x =
     # extract features using some Convolutional Layers - with batch normalization and RELU activation
 
     # apply tnet on the feature vector
-    f =
+    # f =
     # extract features using some Convolutional Layers - with batch normalization and RELU activation
 
     # apply 1D global max pooling
@@ -122,3 +125,8 @@ def pointnet_segmenter(inputs, labels):
 
     # return the output
     return outputs
+
+
+if __name__ == "__main__":
+    print("main func")
+    tnet()
