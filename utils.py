@@ -34,20 +34,20 @@ def create_point_cloud_dataset(data_dir, num_points_per_cloud=1024):
         print("processing class: {}".format(class_name))
 
         # TODO: Fill this part, get the name of the folder (class) and save it
-        class_ids[class_name] = class_id
+        class_ids[class_id] = class_name
 
         # get the files in the train folder
         train_files = glob.glob(os.path.join(folder, "train/*"))
         for f in train_files:
             # TODO: Fill this part
             train_pc.append(getPointsfromPath(f, num_points_per_cloud))
-            train_labels.append(class_name)
+            train_labels.append(class_id)
         # get the files in the test folder
         test_files = glob.glob(os.path.join(folder, "test/*"))
         for f in test_files:
             # TODO: FIll this part
             test_pc.append(getPointsfromPath(f, num_points_per_cloud))
-            test_labels.append(class_name)
+            test_labels.append(class_id)
 
     return (np.array(train_pc), np.array(test_pc),
             np.array(train_labels), np.array(test_labels), class_ids)
