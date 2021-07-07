@@ -24,7 +24,7 @@ def tnet(inputs, num_features):
     # Some dense fully connected layers - with batch normalization, RELU activation
     print(inputs.shape)
     x = tf.keras.layers.Conv1D(32, 3, activation='relu',input_shape=(num_features, 3))
-    x = layers.MaxPool1D()
+    x = layers.MaxPool1D()(x)
     x = layers.BatchNormalization()(x)
     # final layer with custom regularizer on the output
     # TODO: this custom regularizer needs to be defined
