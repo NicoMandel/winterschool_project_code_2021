@@ -31,7 +31,7 @@ def tnet(inputs, num_features):
     # 1 x 1024 x 1024 
     x = layers.BatchNormalization()(x)
     # Global max pooling
-    x = layers.MaxPool1D(1)(x)
+    x = layers.GlobalMaxPool1D()(x)
     # 1 x 1024 x 1
     # Some dense fully connected layers - with batch normalization, RELU activation
     x = layers.Dense(512, activation='relu')(x)
@@ -72,7 +72,8 @@ class CustomRegularizer(keras.regularizers.Regularizer):
         # TODO: define the custom regularizer here
         x = tf.reshape(x, (-1, self.dim, self.dim))
         # compute the outer product and reshape it to batch size x num_features x num_features
-        outerpr = tf.tensordot(x, tf.transpose(x)).reshape((x.shape[0], x.shape[1], x.shape[1]))        # use .reshape(self.dim) ??
+        outerpr = tf.tensordot(x, tf.transpose(x), axes=0)
+        outerpr = tf.reshape(outerpr, (x.shape[0], x.shape[1], x.shape[1]))     # use .reshape(self.dim) ??
         # Compute (I-outerproduct)^2 element wise. use tf.square()
         out = tf.square(np.eye(3) - outerpr)  
         # Apply weight
@@ -115,7 +116,7 @@ def pointnet_classifier(inputs, num_classes):
     x = layers.BatchNormalization()(x)
 
     # apply 1D global max pooling
-    x = layers.MaxPool1D()(x)
+    x = layers.GlobalMaxPool1D()(x)
 
     # Add a few dense layers with dropout between the layers
     x = layers.Dense(512, activation='relu')(x)
