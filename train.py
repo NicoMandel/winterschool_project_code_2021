@@ -96,9 +96,9 @@ model.summary()
 
 # 2. Set the loss function, optimizer and metrics to print
 model.compile(
-    loss="....",     # <- choose a suitable loss function
+    loss=keras.losses.CategoricalCrossentropy(),     # <- choose a suitable loss function
     optimizer=keras.optimizers.Adam(learning_rate=0.001),      # <- you may modify this if you like
-    metrics=[""],    # <- choose a suitable metric, https://www.tensorflow.org/api_docs/python/tf/keras/metrics
+    metrics=[keras.metrics.CategoricalAccuracy()],    # <- choose a suitable metric, https://www.tensorflow.org/api_docs/python/tf/keras/metrics
 )
 
 # train the network
