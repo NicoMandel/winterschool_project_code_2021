@@ -72,10 +72,10 @@ class CustomRegularizer(keras.regularizers.Regularizer):
         # TODO: define the custom regularizer here
         x = tf.reshape(x, (-1, self.dim, self.dim))
         # compute the outer product and reshape it to batch size x num_features x num_features
-        outerpr = tf.tensordot(x, tf.transpose(x), axes=0)
-        outerpr = tf.reshape(outerpr, (x.shape[0], x.shape[1], x.shape[1]))     # use .reshape(self.dim) ??
+        outerpr = tf.tensordot(x, tf.transpose(x), axes=1)
+        # outerpr = tf.reshape(outerpr, (x.shape[0], x.shape[1], x.shape[1]))     # use .reshape(self.dim) ??
         # Compute (I-outerproduct)^2 element wise. use tf.square()
-        out = tf.square(np.eye(3) - outerpr)  
+        out = tf.square(np.eye(self.dim) - outerpr)         # use self.dim here  
         # Apply weight
         out = self.weight * out
         # Compute reduce sum using tf.reduce_sum()
