@@ -1,6 +1,7 @@
-# test, dataset and .vscode folder
+# test, dataset ,test.py and .vscode folder
 **/test/
 **/dataset/
+**/test.py
 **/.vscode/
 
 # Byte-compiled / optimized / DLL files
