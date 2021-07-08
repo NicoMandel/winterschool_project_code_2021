@@ -43,12 +43,10 @@ def tnet(inputs, num_features):
     x = layers.GlobalMaxPool1D()(x)
     # 1 x 1024 x 1
     # Some dense fully connected layers - with batch normalization, RELU activation
-<<<<<<< HEAD
     x = dens(x,512)
     x = dens(x,256)
 
 
-=======
     # final layer with custom regularizer on the output
     # TODO: this custom regularizer needs to be defined
     x = layers.Dense(
@@ -108,13 +106,12 @@ def pointnet_classifier(inputs, num_classes):
     """
     # TODO: build the network using the following layers
     # apply tnet to the input data
-<<<<<<< HEAD
     x = tnet(inputs, 3)
 
     # extract features using some Convolutional Layers - with batch normalization and RELU activation
     x = conv(x,32)
     x = conv(x,64)
-    
+
     # apply tnet on the feature vector
     x = tnet(x, 64)
     # TODO: Check dimension mismatch?
@@ -131,7 +128,7 @@ def pointnet_classifier(inputs, num_classes):
     x = layers.Dropout(0.3)(x)      # TODO: should this be 0.7?
     x = dens(x, 256)
     x = layers.Dropout(0.3)(x)      # TODO: should this be 0.7?
-    
+
     # Finally predict classes using a dense layer with a softmax activation
     outputs = layers.Dense(num_classes, activation="softmax")(x)
     return outputs
@@ -149,9 +146,7 @@ def pointnet_segmenter(inputs, labels):
     """
     # TODO: build the network using the following layers
     # apply tnet to the input data
-<<<<<<< HEAD
     x = tnet(inputs, 3)
->>>>>>> 7b8c14948690ea97daba94e031004e4adc38c012
     # extract features using some Convolutional Layers - with batch normalization and RELU activation
     x = conv(x,32)
     x = conv(x,64)
