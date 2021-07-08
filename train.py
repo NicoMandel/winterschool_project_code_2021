@@ -20,7 +20,7 @@ def parse_args():
     parser.add_argument("-b", "--batch", type=int, default=16, help="batch size to be used. Should not exceed memory")
     parser.add_argument("-s", "--save", action="store_true", default=False, help="Whether the model should be saved. Default false.")
     parser.add_argument("-l", "--load", default=None, help="location of model to be loaded")
-    parser.add_argument("-e", "--epochs", default=5, type=int, help="Maximum epochs, iterations of training")
+    parser.add_argument("-e", "--epochs", default=10, type=int, help="Maximum epochs, iterations of training")
     args = parser.parse_args()
     return vars(args)
 
@@ -91,7 +91,6 @@ if __name__=="__main__":
         test_labels = pickle.load(open(os.path.join(DATA_DIR, "testlabels.pkl"), "rb"))
         class_ids = pickle.load(open(os.path.join(DATA_DIR, "class_ids.pkl"), "rb"))
         print("Pickled files already found in {}. Using these".format(DATA_DIR))
-        utils.create_point_cloud_dataset(DATA_DIR, num_points_per_cloud)
     except FileNotFoundError:
         print("No pickled files found in {}. Creating new. This may take a while, sit back and relax".format(DATA_DIR))
         train_pc, test_pc, train_labels, test_labels, class_ids = utils.create_point_cloud_dataset(DATA_DIR, num_points_per_cloud)

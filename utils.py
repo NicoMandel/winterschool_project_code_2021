@@ -75,7 +75,7 @@ def add_noise_and_shuffle(point_cloud, label):
     :return: the processed point cloud and the label
     :rtype: tensors
     """
-    point_cloud = scale_and_normalise(point_cloud)
+    # point_cloud = scale_and_normalise(point_cloud)    # tensorflow version does not work really well
     dev_in_metres = 0.002   # <- change this value to change amount of noise
     # add noise to the points
     point_cloud += tf.random.uniform(point_cloud.shape, -dev_in_metres, dev_in_metres, dtype=tf.float64)
@@ -86,14 +86,17 @@ def add_noise_and_shuffle(point_cloud, label):
 
 def scale_and_normalise(point_cloud):
     m = point_cloud.mean(axis=0)
+    # m = tf.math.reduce_mean(point_cloud, axis=0)
     newp = point_cloud - m
     scalef = np.linalg.norm(newp, axis=1).max()
+    # scalef = tf.reduce_max(tf.norm(newp, axis=1))
     point_cloud = newp / scalef
     return point_cloud
 
 def getPointsfromPath(fname, points_per_cloud):
     cad_mesh = trimesh.load(fname)
     points = trimesh.sample.sample_surface(cad_mesh, points_per_cloud)[0]
+    points = scale_and_normalise(points)
     return points
 
 
