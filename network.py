@@ -121,10 +121,10 @@ def pointnet_classifier(inputs, num_classes):
     # Add a few dense layers with dropout between the layers
     x = layers.Dense(512, activation='relu')(x)
     x = layers.BatchNormalization()(x)
-    x = layers.Dropout(0.3)(x)      # TODO: should this be 0.7?
+    x = layers.Dropout(0.3)(x)      
     x = layers.Dense(256, activation='relu')(x)
     x = layers.BatchNormalization()(x)
-    x = layers.Dropout(0.3)(x)      # TODO: should this be 0.7?
+    x = layers.Dropout(0.3)(x)      
     
     # Finally predict classes using a dense layer with a softmax activation
     outputs = layers.Dense(num_classes, activation="softmax")(x)
