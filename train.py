@@ -11,6 +11,19 @@ import network
 import utils
 
 
+from argparse import ArgumentParser
+
+def parse_args():
+    parser = ArgumentParser(description="Training a PointNet")
+    
+    parser.add_argument("-c", "--classes", default=1, type=int, help="Number of classes in the dataset (without background!). Default is 1")
+    parser.add_argument("-b", "--batch", type=int, default=16, help="batch size to be used. Should not exceed memory")
+    parser.add_argument("-s", "--save", action="store_true", default=False, help="Whether the model should be saved. Default false.")
+    parser.add_argument("-l", "--load", default=None, help="location of model to be loaded")
+    parser.add_argument("-e", "--epochs", default=5, type=int, help="Maximum epochs, iterations of training")
+    args = parser.parse_args()
+    return vars(args)
+
 def display_sample(fname):
     cad_mesh = trimesh.load(fname)  # <- Set path to a .off file
     cad_mesh.show()
@@ -25,7 +38,24 @@ def display_sample(fname):
     utils.visualize_cloud(points)
 
 
+def create_dataset(DATA_DIR, num_points_per_cloud):
+    train_pc, test_pc, train_labels, test_labels, class_ids = utils.create_point_cloud_dataset(DATA_DIR,
+                                                                                                num_points_per_cloud)
+    return train_pc, test_pc, train_labels, test_labels, class_ids
+
+def save_dataset(DATA_DIR, train_pc, test_pc, train_labels, test_labels, class_ids):
+
+    pickle.dump(train_pc, open(os.path.join(DATA_DIR, "trainpc.pkl"), "wb"))
+    pickle.dump(test_pc, open(os.path.join(DATA_DIR, "testpc.pkl"), "wb"))
+    pickle.dump(train_labels, open(os.path.join(DATA_DIR, "trainlabels.pkl"), "wb"))
+    pickle.dump(test_labels, open(os.path.join(DATA_DIR, "testlabels.pkl"), "wb"))
+    pickle.dump(class_ids, open(os.path.join(DATA_DIR, "class_ids.pkl"), "wb"))
+
 if __name__=="__main__":
+
+    args = parse_args()
+
+
     # If using a GPU keep these lines to avoid CUDNN errors
     gpus = tf.config.experimental.list_physical_devices('GPU')
     for gpu in gpus:
@@ -61,20 +91,16 @@ if __name__=="__main__":
         test_labels = pickle.load(open(os.path.join(DATA_DIR, "testlabels.pkl"), "rb"))
         class_ids = pickle.load(open(os.path.join(DATA_DIR, "class_ids.pkl"), "rb"))
         print("Pickled files already found in {}. Using these".format(DATA_DIR))
+        utils.create_point_cloud_dataset(DATA_DIR, num_points_per_cloud)
     except FileNotFoundError:
         print("No pickled files found in {}. Creating new. This may take a while, sit back and relax".format(DATA_DIR))
-        train_pc, test_pc, train_labels, test_labels, class_ids = utils.create_point_cloud_dataset(DATA_DIR,
-                                                                                                num_points_per_cloud)
-
+        train_pc, test_pc, train_labels, test_labels, class_ids = utils.create_point_cloud_dataset(DATA_DIR, num_points_per_cloud)
+        save_dataset(DATA_DIR, train_pc, test_pc, train_labels, test_labels, class_ids)
         # 2. For the semantic segmentation dataset, modify the above function.
         # Tips: You can generate the point clouds of individual objects and then randomly combine multiple objects to one cloud.
 
         # once loaded save the numpy arrays to pickle files to use later
-        pickle.dump(train_pc, open(os.path.join(DATA_DIR, "trainpc.pkl"), "wb"))
-        pickle.dump(test_pc, open(os.path.join(DATA_DIR, "testpc.pkl"), "wb"))
-        pickle.dump(train_labels, open(os.path.join(DATA_DIR, "trainlabels.pkl"), "wb"))
-        pickle.dump(test_labels, open(os.path.join(DATA_DIR, "testlabels.pkl"), "wb"))
-        pickle.dump(class_ids, open(os.path.join(DATA_DIR, "class_ids.pkl"), "wb"))
+        
 
 
     # Create tensorflow data loaders from the numpy arrays
@@ -93,7 +119,7 @@ if __name__=="__main__":
     # ********************************************************************************
     # 1. Fill in the skeleton code given in the network.py file
     inputs = keras.Input(shape=(num_points_per_cloud, 3))
-    outputs = network.pointnet_classifier(inputs, num_classes=10)
+    outputs = network.pointnet_classifier(inputs, num_classes=10, scale=0.5)
     # outputs = network.pointnet_segmenter(inputs, train_labels)
 
     # build the network and visualize its architecture
@@ -108,7 +134,7 @@ if __name__=="__main__":
     )
 
     # train the network
-    num_epochs = 2    # <- change this value as needed
+    num_epochs = args["epochs"]    # <- change this value as needed
     model.fit(train_dataset, epochs=num_epochs, validation_data=test_dataset)
 
     # visualize results
@@ -124,4 +150,7 @@ if __name__=="__main__":
     # 4. Display a confusion matrix
     confmat = tf.math.confusion_matrix(labels, preds, num_classes=10)
     print("Testline: {}".format(confmat))
+
+    if args["save"]:
+        model.save("model.tf")
 
