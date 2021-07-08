@@ -121,3 +121,18 @@ def display_batch(pointclouds, labels, class_dict, preds = None):
     plt.show()
 
 
+def zrot():
+    """
+    Rotations:
+        1. option 1: tensorflow graphics: https://www.tensorflow.org/graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d/from_euler
+        2. option 2: write ourselves: https://stackoverflow.com/questions/37042748/how-to-create-a-rotation-matrix-in-tensorflow
+        3. option 3: write ourselves - another one https://stackoverflow.com/questions/42937511/3d-rotation-matrix-in-tensor-flow
+    
+    
+    """
+    phi = tf.random.uniform([1], minval=-179, maxval=179)
+    rotation_matrix = tf.stack([(tf.cos(phi), -tf.sin(phi), 0.), (tf.sin(phi), tf.cos(phi), 0.), (0., 0., 1.)])
+    
+    zrotmat = tf.Variable([[tf.math.cos(phi), -1.0 * tf.math.sin(phi), 0.], [tf.math.sin(phi), tf.math.cos(phi), 0.], [0., 0., 1.]], dtype=tf.float32)
+
+    return zrotmat

@@ -109,7 +109,7 @@ if __name__=="__main__":
     # 3. Perform data augmentation by adding noise and shuffling the dataset.
     # In this step you need to fill in the utils.add_noise_and_shuffle function
     # to add noise to the sampled points and shuffle the points around
-    batch_size = 16     # <- You can modify this value as needed
+    batch_size = args["batch"]     # <- You can modify this value as needed
     train_dataset = train_dataset.shuffle(len(train_pc)).map(utils.add_noise_and_shuffle).batch(batch_size)
     test_dataset = test_dataset.shuffle(len(test_pc)).batch(batch_size)
 
@@ -143,6 +143,9 @@ if __name__=="__main__":
     # predict labels using the model
     preds = model.predict(point_clouds)
     preds = tf.math.argmax(preds, -1)
+
+    # test model
+    results = model.evaluate(test_dataset, batch_size=batch_size)
 
     # 3. Display some clouds using matplotlib scatter plot along with true and predicted labels
     utils.display_batch(point_clouds, labels, class_ids, preds)
