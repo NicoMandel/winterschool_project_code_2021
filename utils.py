@@ -94,3 +94,19 @@ def encode_one_hot(index):
     vec[index] = 1
     return vec
 
+def display_batch(pointclouds, labels, class_dict, preds = None):
+    """ assumes a batch size of 16
+    """
+    fig = plt.figure()
+    for idx in range(pointclouds.shape[0]):
+        ax = fig.add_subplot(4, 4, idx+1, projection="3d")
+        ax.scatter(pointclouds[idx, :, 0], pointclouds[idx, :, 1], pointclouds[idx, :, 2])
+        t = "label: {}".format(class_dict[labels[idx].numpy()])
+        if preds is not None:
+            t += "; pred: {}".format(class_dict[preds[idx].numpy()])
+        ax.set_title(t)
+        ax.set_axis_off()
+    plt.tight_layout()
+    plt.show()
+
+
