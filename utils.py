@@ -89,3 +89,8 @@ def getPointsfromPath(fname, points_per_cloud):
     return points
 
 
+def encode_one_hot(index):
+    vec = np.zeros(10)
+    vec[index] = 1
+    return vec
+
