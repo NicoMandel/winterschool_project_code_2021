@@ -1,4 +1,5 @@
 import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"]= "2"
 import numpy as np
 import tensorflow as tf
 import trimesh.sample
@@ -9,7 +10,6 @@ import pickle
 
 import network
 import utils
-
 
 # If using a GPU keep these lines to avoid CUDNN errors
 gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -32,7 +32,7 @@ DATA_DIR = os.path.join(fdir, "dataset")
 # 4. Familiarize yourself with the dataset by checking the folders and visualizing the models.
 # Use the functions trimesh.load to load a mesh and mesh.show() to visualize it
 cad_mesh = trimesh.load(os.path.join(DATA_DIR, "bed/train/bed_0010.off"))  # <- Set path to a .off file
-cad_mesh.show()
+# cad_mesh.show()
 
 # *************************************************************
 # STEP 1: Generate point clouds
@@ -45,7 +45,7 @@ utils.visualize_cloud(points)
 
 # 1. Use the above function to repeat the process and sample points for the entire dataset.
 # Develop the skeleton code in the utils.py file.
-num_points_per_cloud = 1024     # <- you can modify this number as needed
+num_points_per_cloud = 1024  # <- you can modify this number as needed
 
 # load the data from pickle files if already present
 try:
@@ -58,7 +58,7 @@ try:
 except FileNotFoundError:
     print("No pickled files found in {}. Creating new. This may take a while, sit back and relax".format(DATA_DIR))
     train_pc, test_pc, train_labels, test_labels, class_ids = utils.create_point_cloud_dataset(DATA_DIR,
-                                                                                            num_points_per_cloud)
+                                                                                               num_points_per_cloud)
 
     # 2. For the semantic segmentation dataset, modify the above function.
     # Tips: You can generate the point clouds of individual objects and then randomly combine multiple objects to one cloud.
@@ -70,15 +70,13 @@ except FileNotFoundError:
     pickle.dump(test_labels, open(os.path.join(DATA_DIR, "testlabels.pkl"), "wb"))
     pickle.dump(class_ids, open(os.path.join(DATA_DIR, "class_ids.pkl"), "wb"))
 
-
 # Create tensorflow data loaders from the numpy arrays
 train_dataset = tf.data.Dataset.from_tensor_slices((train_pc, train_labels))
 test_dataset = tf.data.Dataset.from_tensor_slices((test_pc, test_labels))
-
 # 3. Perform data augmentation by adding noise and shuffling the dataset.
 # In this step you need to fill in the utils.add_noise_and_shuffle function
 # to add noise to the sampled points and shuffle the points around
-batch_size = 16     # <- You can modify this value as needed
+batch_size = 16  # <- You can modify this value as needed
 train_dataset = train_dataset.shuffle(len(train_pc)).map(utils.add_noise_and_shuffle).batch(batch_size)
 test_dataset = test_dataset.shuffle(len(test_pc)).batch(batch_size)
 
@@ -96,14 +94,15 @@ model.summary()
 
 # 2. Set the loss function, optimizer and metrics to print
 model.compile(
-    loss=keras.losses.CategoricalCrossentropy(),     # <- choose a suitable loss function
-    optimizer=keras.optimizers.Adam(learning_rate=0.001),      # <- you may modify this if you like
-    metrics=[keras.metrics.CategoricalAccuracy()],    # <- choose a suitable metric, https://www.tensorflow.org/api_docs/python/tf/keras/metrics
+    loss=keras.losses.CategoricalCrossentropy(),  # <- choose a suitable loss function
+    optimizer=keras.optimizers.Adam(learning_rate=0.001),  # <- you may modify this if you like
+    metrics=[keras.metrics.CategoricalAccuracy()],  # <- choose a suitable metric,
+    # https://www.tensorflow.org/api_docs/python/tf/keras/metrics
 )
 
 # train the network
-num_epochs = 5      # <- change this value as needed
-model.fit(train_dataset, epochs=num_epochs, validation_data=test_dataset)
+num_epochs = 5  # <- change this value as needed
+model.fit(train_dataset, epochs=num_epochs, validation_data=test_dataset, verbose=2)
 
 # visualize results
 data = test_dataset.take(1)
@@ -113,6 +112,17 @@ point_clouds, labels = list(data)[0]  # this is one batch of data
 preds = model.predict(point_clouds)
 preds = tf.math.argmax(preds, -1)
 
+point_clouds = point_clouds.numpy()
 # 3. Display some clouds using matplotlib scatter plot along with true and predicted labels
-
+fig = plt.figure(figsize=(15, 10))
+for i in range(8):
+    ax = fig.add_subplot(2, 4, i + 1, projection="3d")
+    ax.scatter(point_clouds[i, :, 0], point_clouds[i, :, 1], point_clouds[i, :, 2])
+    ax.set_title(
+        "pred: {:}, label: {:}".format(
+            class_ids[preds[i].numpy()], class_ids[labels.numpy()[i]]
+        )
+    )
+    ax.set_axis_off()
+plt.show()
 # 4. Display a confusion matrix
