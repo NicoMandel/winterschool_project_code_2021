@@ -32,7 +32,7 @@ def create_point_cloud_dataset(data_dir, num_points_per_cloud=1024):
     for class_id, folder in enumerate(folders):
         class_name = os.path.basename(folder)
         print("processing class: {}".format(class_name))
-
+        print(class_id)
         # TODO: Fill this part, get the name of the folder (class) and save it
         class_ids[class_name] = class_id
 
@@ -75,7 +75,7 @@ def add_noise_and_shuffle(point_cloud, label):
     :return: the processed point cloud and the label
     :rtype: tensors
     """
-    dev_in_metres = 0.002   # <- change this value to change amount of noise
+    dev_in_metres = 0.005   # <- change this value to change amount of noise
     # add noise to the points
     point_cloud += tf.random.uniform(point_cloud.shape, -dev_in_metres, dev_in_metres, dtype=tf.float64)
     # shuffle points
