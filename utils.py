@@ -34,20 +34,20 @@ def create_point_cloud_dataset(data_dir, num_points_per_cloud=1024):
         print("processing class: {}".format(class_name))
         print(class_id)
         # TODO: Fill this part, get the name of the folder (class) and save it
-        class_ids[class_name] = class_id
+        class_ids[class_id] = class_name
 
         # get the files in the train folder
         train_files = glob.glob(os.path.join(folder, "train/*"))
         for f in train_files:
             # TODO: Fill this part
             train_pc.append(getPointsfromPath(f, num_points_per_cloud))
-            train_labels.append(class_name)
+            train_labels.append(class_id)
         # get the files in the test folder
         test_files = glob.glob(os.path.join(folder, "test/*"))
         for f in test_files:
             # TODO: FIll this part
             test_pc.append(getPointsfromPath(f, num_points_per_cloud))
-            test_labels.append(class_name)
+            test_labels.append(class_id)
 
     return (np.array(train_pc), np.array(test_pc),
             np.array(train_labels), np.array(test_labels), class_ids)
@@ -75,7 +75,7 @@ def add_noise_and_shuffle(point_cloud, label):
     :return: the processed point cloud and the label
     :rtype: tensors
     """
-    dev_in_metres = 0.005   # <- change this value to change amount of noise
+    dev_in_metres = 0.001   # <- change this value to change amount of noise
     # add noise to the points
     point_cloud += tf.random.uniform(point_cloud.shape, -dev_in_metres, dev_in_metres, dtype=tf.float64)
     # shuffle points
@@ -87,5 +87,26 @@ def getPointsfromPath(fname, points_per_cloud):
     cad_mesh = trimesh.load(fname)
     points = trimesh.sample.sample_surface(cad_mesh, points_per_cloud)[0]
     return points
+
+
+def encode_one_hot(index):
+    vec = np.zeros(10)
+    vec[index] = 1
+    return vec
+
+def display_batch(pointclouds, labels, class_dict, preds = None):
+    """ assumes a batch size of 16
+    """
+    fig = plt.figure()
+    for idx in range(pointclouds.shape[0]):
+        ax = fig.add_subplot(8, 8, idx+1, projection="3d")
+        ax.scatter(pointclouds[idx, :, 0], pointclouds[idx, :, 1], pointclouds[idx, :, 2])
+        t = "label: {}".format(class_dict[labels[idx].numpy()])
+        if preds is not None:
+            t += "; pred: {}".format(class_dict[preds[idx].numpy()])
+        ax.set_title(t)
+        ax.set_axis_off()
+    plt.tight_layout()
+    plt.show()
 
 

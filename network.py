@@ -30,7 +30,7 @@ def tnet(inputs, num_features):
     bias = keras.initializers.Constant(np.eye(num_features).flatten())
     
     dims = inputs.shape
-    print(dims)# 1 x 1024 x 3
+    # 1 x 1024 x 3
     # TODO: Build the tnet with the following layers
     # Some convolutional layers (1D) - with batch normalization, RELU activation
     x = conv(inputs,64)
@@ -83,7 +83,7 @@ class CustomRegularizer(keras.regularizers.Regularizer):
         # TODO: define the custom regularizer here
         x = tf.reshape(x, (-1, self.dim, self.dim))
         # compute the outer product and reshape it to batch size x num_features x num_features
-        outerpr = tf.tensordot(x, tf.transpose(x), axes=(2,2))
+        outerpr = tf.tensordot(x, x , axes=(2,2))
         outerpr = tf.reshape(outerpr, (-1, self.dim, self.dim))     # use .reshape(self.dim) ??
         # Compute (I-outerproduct)^2 element wise. use tf.square()
         out = tf.square(self.eye - outerpr)         # use self.dim here
@@ -114,6 +114,7 @@ def pointnet_classifier(inputs, num_classes):
 
     # apply tnet on the feature vector
     x = tnet(x, 64)
+    print(x.shape)
     # TODO: Check dimension mismatch?
 
     # extract features using some Convolutional Layers - with batch normalization and RELU activation
@@ -122,7 +123,7 @@ def pointnet_classifier(inputs, num_classes):
     x = conv(x, 1024)
     # apply 1D global max pooling
     x = layers.GlobalMaxPool1D()(x)
-
+    print(x.shape)
     # Add a few dense layers with dropout between the layers
     x = dens(x,512)
     x = layers.Dropout(0.3)(x)      # TODO: should this be 0.7?
@@ -151,16 +152,25 @@ def pointnet_segmenter(inputs, labels):
     x = conv(x,32)
     x = conv(x,64)
     # apply tnet on the feature vector
-    # f =
+    f = tnet(x,64)
     # extract features using some Convolutional Layers - with batch normalization and RELU activation
-
+    x = conv(f, 128)
+    x = conv(x, 256)
+    x = conv(x, 1024)
     # apply 1D global max pooling
-
+    gf = layers.GlobalMaxPool1D()(x)
     # concatenate these features with the earlier features (f)
+    gf = tf.expand_dims(input=gf,axis=2)
+    gf = tf.tile(input=gf,multiples=[1,1,1024])
+    print(gf.shape)
     # you can also use skip connections if you like
-
+    cont_f = layers.concatenate([f,gf])
     # extract features using some Convolutional Layers - with batch normalization and RELU activation
+    x = conv(cont_f,512)
+    x = conv(x,256)
+    x = conv(x,128)
 
+    outputs = layers.Dense(10,activation='softmax')(x)
     # return the output
     return outputs
 
