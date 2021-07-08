@@ -4,7 +4,7 @@ from tensorflow.keras import layers
 import numpy as np
 
 
-def tnet(inputs, num_features, scale = 1.0):
+def tnet(inputs, num_features):
     """
     This is the core t-net of the pointnet paper
     :param inputs: the input tensor
@@ -21,22 +21,22 @@ def tnet(inputs, num_features, scale = 1.0):
     dims = inputs.shape     # 1 x 1024 x 3
     # TODO: Build the tnet with the following layers
     # Some convolutional layers (1D) - with batch normalization, RELU activation
-    x = layers.Conv1D(scale * 64, 1, activation='relu')(inputs)
+    x = layers.Conv1D(64, 1, activation='relu')(inputs)
     # 1 x 1024 x 64 
     x = layers.BatchNormalization()(x)
-    x = layers.Conv1D(scale * 128, 1, activation='relu')(x)
+    x = layers.Conv1D(128, 1, activation='relu')(x)
     # 1 x 1024 x 128
     x = layers.BatchNormalization()(x)
-    x = layers.Conv1D(scale * 1024, 1, activation='relu')(x)
+    x = layers.Conv1D(1024, 1, activation='relu')(x)
     # 1 x 1024 x 1024 
     x = layers.BatchNormalization()(x)
     # Global max pooling
     x = layers.GlobalMaxPool1D()(x)
     # 1 x 1024 x 1
     # Some dense fully connected layers - with batch normalization, RELU activation
-    x = layers.Dense(scale * 512, activation='relu')(x)
+    x = layers.Dense(512, activation='relu')(x)
     x = layers.BatchNormalization()(x)
-    x = layers.Dense(scale * 256, activation='relu')(x)
+    x = layers.Dense(256, activation='relu')(x)
     x = layers.BatchNormalization()(x)
 
 
@@ -95,7 +95,7 @@ def pointnet_classifier(inputs, num_classes, scale=1.0):
     """
     # TODO: build the network using the following layers
     # apply tnet to the input data
-    x = tnet(inputs, 3, scale=scale)
+    x = tnet(inputs, 3)
 
     # extract features using some Convolutional Layers - with batch normalization and RELU activation
     x = layers.Conv1D(scale * 64, 1, activation='relu')(x)
@@ -106,7 +106,7 @@ def pointnet_classifier(inputs, num_classes, scale=1.0):
     x = layers.BatchNormalization()(x)
     
     # apply tnet on the feature vector
-    x = tnet(x, int(scale*128), scale=scale)
+    x = tnet(x, int(scale * 128))
     # TODO: Check dimension mismatch?
 
     # extract features using some Convolutional Layers - with batch normalization and RELU activation
@@ -126,8 +126,8 @@ def pointnet_classifier(inputs, num_classes, scale=1.0):
     x = layers.BatchNormalization()(x)
     x = layers.Dropout(0.3)(x)      
     
-    # Finally predict classes using a dense layer with a softmax activation
-    outputs = layers.Dense(scale * num_classes, activation="softmax")(x)
+    # Finally predict classes using a dense  layer with a softmax activation
+    outputs = layers.Dense(num_classes, activation="softmax")(x)
     return outputs
 
 
