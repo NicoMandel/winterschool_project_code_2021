@@ -1,10 +1,13 @@
 import os
 import glob
+from tensorflow.python.keras.backend import dtype
 import trimesh
 import trimesh.sample
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
+import tensorflow_graphics.geometry.transformation as tfgt
+import math
 
 def create_point_cloud_dataset(data_dir, num_points_per_cloud=1024):
     """
@@ -81,6 +84,9 @@ def add_noise_and_shuffle(point_cloud, label):
     point_cloud += tf.random.uniform(point_cloud.shape, -dev_in_metres, dev_in_metres, dtype=tf.float64)
     # shuffle points
     point_cloud = tf.random.shuffle(point_cloud)
+    # z- rotation
+    rot = samplezrot()
+    point_cloud = tf.matmul(point_cloud, rot)
     return point_cloud, label
 
 
@@ -121,18 +127,16 @@ def display_batch(pointclouds, labels, class_dict, preds = None):
     plt.show()
 
 
-def zrot():
+def samplezrot():
     """
     Rotations:
         1. option 1: tensorflow graphics: https://www.tensorflow.org/graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d/from_euler
         2. option 2: write ourselves: https://stackoverflow.com/questions/37042748/how-to-create-a-rotation-matrix-in-tensorflow
         3. option 3: write ourselves - another one https://stackoverflow.com/questions/42937511/3d-rotation-matrix-in-tensor-flow
-    
-    
     """
-    phi = tf.random.uniform([1], minval=-179, maxval=179)
-    rotation_matrix = tf.stack([(tf.cos(phi), -tf.sin(phi), 0.), (tf.sin(phi), tf.cos(phi), 0.), (0., 0., 1.)])
-    
-    zrotmat = tf.Variable([[tf.math.cos(phi), -1.0 * tf.math.sin(phi), 0.], [tf.math.sin(phi), tf.math.cos(phi), 0.], [0., 0., 1.]], dtype=tf.float32)
-
-    return zrotmat
+    phi = tf.random.uniform([], minval=-math.pi, maxval=math.pi, dtype=tf.float64)
+    # angles = tf.Variable([0, 0, phi], trainable=False)
+    rot = tfgt.rotation_matrix_3d.from_euler(
+        [0., 0., phi]
+    )
+    return rot
