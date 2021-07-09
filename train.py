@@ -16,11 +16,11 @@ from argparse import ArgumentParser
 def parse_args():
     parser = ArgumentParser(description="Training a PointNet")
     
-    parser.add_argument("--scale", default=0.5, type=float, help="Factor by which to scale the Network size. For faster convergence. Default is 0.5")
+    parser.add_argument("--scale", default=1, type=float, help="Factor by which to scale the Network size. For faster convergence. Default is 0.5")
     parser.add_argument("-b", "--batch", type=int, default=16, help="batch size to be used. Should not exceed memory")
     parser.add_argument("-s", "--save", action="store_true", default=False, help="Whether the model should be saved. Default false.")
     parser.add_argument("-l", "--load", default=None, help="location of model to be loaded")
-    parser.add_argument("-e", "--epochs", default=10, type=int, help="Maximum epochs, iterations of training")
+    parser.add_argument("-e", "--epochs", default=25, type=int, help="Maximum epochs, iterations of training")
     args = parser.parse_args()
     return vars(args)
 

@@ -134,9 +134,9 @@ def samplezrot():
         2. option 2: write ourselves: https://stackoverflow.com/questions/37042748/how-to-create-a-rotation-matrix-in-tensorflow
         3. option 3: write ourselves - another one https://stackoverflow.com/questions/42937511/3d-rotation-matrix-in-tensor-flow
     """
-    phi = tf.random.uniform([], minval=-math.pi, maxval=math.pi, dtype=tf.float64)
+    phi = tf.random.uniform([3], minval=-math.pi, maxval=math.pi, dtype=tf.float64)
     # angles = tf.Variable([0, 0, phi], trainable=False)
     rot = tfgt.rotation_matrix_3d.from_euler(
-        [0., 0., phi]
+        phi
     )
     return rot
