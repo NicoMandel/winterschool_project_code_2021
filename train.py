@@ -16,7 +16,7 @@ from argparse import ArgumentParser
 def parse_args():
     parser = ArgumentParser(description="Training a PointNet")
     
-    parser.add_argument("-c", "--classes", default=1, type=int, help="Number of classes in the dataset (without background!). Default is 1")
+    parser.add_argument("--scale", default=0.5, type=float, help="Factor by which to scale the Network size. For faster convergence. Default is 0.5")
     parser.add_argument("-b", "--batch", type=int, default=16, help="batch size to be used. Should not exceed memory")
     parser.add_argument("-s", "--save", action="store_true", default=False, help="Whether the model should be saved. Default false.")
     parser.add_argument("-l", "--load", default=None, help="location of model to be loaded")
@@ -118,7 +118,7 @@ if __name__=="__main__":
     # ********************************************************************************
     # 1. Fill in the skeleton code given in the network.py file
     inputs = keras.Input(shape=(num_points_per_cloud, 3))
-    outputs = network.pointnet_classifier(inputs, num_classes=10, scale=0.5)
+    outputs = network.pointnet_classifier(inputs, num_classes=10, scale=args["scale"])
     # outputs = network.pointnet_segmenter(inputs, train_labels)
 
     # build the network and visualize its architecture
