@@ -1,6 +1,24 @@
 # Winter School Project: Learning Semantics of 3D point Clouds
 This is a group project for the UTS Winter School on SLAM for Deformable Objects, 2021.  
 
+## Completed work:
+Most changes are in the branch `nico` and have not been merged to main
+1. Generated point clouds through completion of function in `utils.py`
+2. Augmentation of the point cloud through:
+    * constraining points to lie inside the unit circle
+        * at time of creating the dataset
+        * translation by center of mass
+        * scaling by point of largest distance
+    * Rotation around the z-axis
+        * at runtime - for augmentation changes at every epoch
+        * using the `tensorflow-graphics` package
+3. Added base network for classification according to the paper and supplementary material of the paper into `network.py`
+4. Added scaling factor to the network filter sizes - for faster convergence of point cloud samples and testing
+5. Added custom regularizer to constrain the affine transformation, see Equation 2 of the paper
+6. Added network for segmentation - this can be found in the branch `smit`
+7. Added argument parser for faster use
+8. Added plotting of sample results from one batch. (Should) Work with batch sizes <= 16
+
 ## Problem Description
 Understanding what objects are present in a scene or what the constituent parts of an
 object are is useful for several robotics applications such as navigation, mapping and interaction. In this project
@@ -15,6 +33,11 @@ represents the class it belongs to.
 - trimesh
 - matplotlib
 - pyglet
+
+#### Additional Packages - added by Team
+- tensorflow-graphics
+
+required for the 3D rotation of the point cloud
 
 ### Setup using Pip
 If you want to install the prerequisites using pip, use the following commands.  
